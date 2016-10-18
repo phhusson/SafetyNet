@@ -23,6 +23,7 @@ public interface IdleLogs {
         private static volatile AppInfo[] _emptyArray;
         public String apkSha256;
         public byte[] apkSha256Bytes;
+        public int apkVersionCode;
         public String packageName;
         public String[] signatureSha256;
         public byte[][] signatureSha256Bytes;
@@ -50,6 +51,7 @@ public interface IdleLogs {
             this.systemApp = false;
             this.apkSha256Bytes = WireFormatNano.EMPTY_BYTES;
             this.signatureSha256Bytes = WireFormatNano.EMPTY_BYTES_ARRAY;
+            this.apkVersionCode = 0;
             this.unknownFieldData = null;
             this.cachedSize = -1;
             return this;
@@ -77,7 +79,7 @@ public interface IdleLogs {
             } else if (!this.apkSha256.equals(other.apkSha256)) {
                 return false;
             }
-            if (!InternalNano.equals(this.signatureSha256, other.signatureSha256) || this.systemApp != other.systemApp || !Arrays.equals(this.apkSha256Bytes, other.apkSha256Bytes) || !InternalNano.equals(this.signatureSha256Bytes, other.signatureSha256Bytes)) {
+            if (!InternalNano.equals(this.signatureSha256, other.signatureSha256) || this.systemApp != other.systemApp || !Arrays.equals(this.apkSha256Bytes, other.apkSha256Bytes) || !InternalNano.equals(this.signatureSha256Bytes, other.signatureSha256Bytes) || this.apkVersionCode != other.apkVersionCode) {
                 return false;
             }
             if (this.unknownFieldData != null && !this.unknownFieldData.isEmpty()) {
@@ -104,7 +106,7 @@ public interface IdleLogs {
             } else {
                 i = this.apkSha256.hashCode();
             }
-            i = (((((((((hashCode + i) * 31) + InternalNano.hashCode(this.signatureSha256)) * 31) + (this.systemApp ? 1231 : 1237)) * 31) + Arrays.hashCode(this.apkSha256Bytes)) * 31) + InternalNano.hashCode(this.signatureSha256Bytes)) * 31;
+            i = (((((((((((hashCode + i) * 31) + InternalNano.hashCode(this.signatureSha256)) * 31) + (this.systemApp ? 1231 : 1237)) * 31) + Arrays.hashCode(this.apkSha256Bytes)) * 31) + InternalNano.hashCode(this.signatureSha256Bytes)) * 31) + this.apkVersionCode) * 31;
             if (!(this.unknownFieldData == null || this.unknownFieldData.isEmpty())) {
                 i2 = this.unknownFieldData.hashCode();
             }
@@ -112,10 +114,10 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 output.writeString(1, this.packageName);
             }
-            if (!this.apkSha256.equals("")) {
+            if (!(this.apkSha256 == null || this.apkSha256.equals(""))) {
                 output.writeString(2, this.apkSha256);
             }
             if (this.signatureSha256 != null && this.signatureSha256.length > 0) {
@@ -138,6 +140,9 @@ public interface IdleLogs {
                     }
                 }
             }
+            if (this.apkVersionCode != 0) {
+                output.writeInt32(7, this.apkVersionCode);
+            }
             super.writeTo(output);
         }
 
@@ -145,10 +150,10 @@ public interface IdleLogs {
             int dataCount;
             int dataSize;
             int size = super.computeSerializedSize();
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.packageName);
             }
-            if (!this.apkSha256.equals("")) {
+            if (!(this.apkSha256 == null || this.apkSha256.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.apkSha256);
             }
             if (this.signatureSha256 != null && this.signatureSha256.length > 0) {
@@ -168,18 +173,21 @@ public interface IdleLogs {
             if (!Arrays.equals(this.apkSha256Bytes, WireFormatNano.EMPTY_BYTES)) {
                 size += CodedOutputByteBufferNano.computeBytesSize(5, this.apkSha256Bytes);
             }
-            if (this.signatureSha256Bytes == null || this.signatureSha256Bytes.length <= 0) {
-                return size;
-            }
-            dataCount = 0;
-            dataSize = 0;
-            for (byte[] element2 : this.signatureSha256Bytes) {
-                if (element2 != null) {
-                    dataCount++;
-                    dataSize += CodedOutputByteBufferNano.computeBytesSizeNoTag(element2);
+            if (this.signatureSha256Bytes != null && this.signatureSha256Bytes.length > 0) {
+                dataCount = 0;
+                dataSize = 0;
+                for (byte[] element2 : this.signatureSha256Bytes) {
+                    if (element2 != null) {
+                        dataCount++;
+                        dataSize += CodedOutputByteBufferNano.computeBytesSizeNoTag(element2);
+                    }
                 }
+                size = (size + dataSize) + (dataCount * 1);
             }
-            return (size + dataSize) + (dataCount * 1);
+            if (this.apkVersionCode != 0) {
+                return size + CodedOutputByteBufferNano.computeInt32Size(7, this.apkVersionCode);
+            }
+            return size;
         }
 
         public AppInfo mergeFrom(CodedInputByteBufferNano input) throws IOException {
@@ -231,6 +239,9 @@ public interface IdleLogs {
                         }
                         newArray2[i] = input.readBytes();
                         this.signatureSha256Bytes = newArray2;
+                        continue;
+                    case 56:
+                        this.apkVersionCode = input.readInt32();
                         continue;
                     default:
                         if (!super.storeUnknownField(input, tag)) {
@@ -323,7 +334,7 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.partitionName.equals("")) {
+            if (!(this.partitionName == null || this.partitionName.equals(""))) {
                 output.writeString(1, this.partitionName);
             }
             if (this.errorCorrection != 0) {
@@ -334,7 +345,7 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.partitionName.equals("")) {
+            if (!(this.partitionName == null || this.partitionName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.partitionName);
             }
             if (this.errorCorrection != 0) {
@@ -452,7 +463,7 @@ public interface IdleLogs {
             }
 
             public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-                if (!this.filename.equals("")) {
+                if (!(this.filename == null || this.filename.equals(""))) {
                     output.writeString(1, this.filename);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -466,7 +477,7 @@ public interface IdleLogs {
 
             protected int computeSerializedSize() {
                 int size = super.computeSerializedSize();
-                if (!this.filename.equals("")) {
+                if (!(this.filename == null || this.filename.equals(""))) {
                     size += CodedOutputByteBufferNano.computeStringSize(1, this.filename);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -794,10 +805,10 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.verifiedBootState.equals("")) {
+            if (!(this.verifiedBootState == null || this.verifiedBootState.equals(""))) {
                 output.writeString(1, this.verifiedBootState);
             }
-            if (!this.verityMode.equals("")) {
+            if (!(this.verityMode == null || this.verityMode.equals(""))) {
                 output.writeString(2, this.verityMode);
             }
             if (this.oemUnlockSupported != 0) {
@@ -806,7 +817,7 @@ public interface IdleLogs {
             if (this.oemLocked != 0) {
                 output.writeInt32(4, this.oemLocked);
             }
-            if (!this.securityPatchLevel.equals("")) {
+            if (!(this.securityPatchLevel == null || this.securityPatchLevel.equals(""))) {
                 output.writeString(5, this.securityPatchLevel);
             }
             if (this.dmVerityCorrection != null && this.dmVerityCorrection.length > 0) {
@@ -816,13 +827,13 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (!this.productBrand.equals("")) {
+            if (!(this.productBrand == null || this.productBrand.equals(""))) {
                 output.writeString(7, this.productBrand);
             }
-            if (!this.productModel.equals("")) {
+            if (!(this.productModel == null || this.productModel.equals(""))) {
                 output.writeString(8, this.productModel);
             }
-            if (!this.kernelVersion.equals("")) {
+            if (!(this.kernelVersion == null || this.kernelVersion.equals(""))) {
                 output.writeString(9, this.kernelVersion);
             }
             if (this.systemProperty != null && this.systemProperty.length > 0) {
@@ -837,10 +848,10 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.verifiedBootState.equals("")) {
+            if (!(this.verifiedBootState == null || this.verifiedBootState.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.verifiedBootState);
             }
-            if (!this.verityMode.equals("")) {
+            if (!(this.verityMode == null || this.verityMode.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.verityMode);
             }
             if (this.oemUnlockSupported != 0) {
@@ -849,7 +860,7 @@ public interface IdleLogs {
             if (this.oemLocked != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(4, this.oemLocked);
             }
-            if (!this.securityPatchLevel.equals("")) {
+            if (!(this.securityPatchLevel == null || this.securityPatchLevel.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(5, this.securityPatchLevel);
             }
             if (this.dmVerityCorrection != null && this.dmVerityCorrection.length > 0) {
@@ -859,13 +870,13 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (!this.productBrand.equals("")) {
+            if (!(this.productBrand == null || this.productBrand.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(7, this.productBrand);
             }
-            if (!this.productModel.equals("")) {
+            if (!(this.productModel == null || this.productModel.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(8, this.productModel);
             }
-            if (!this.kernelVersion.equals("")) {
+            if (!(this.kernelVersion == null || this.kernelVersion.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(9, this.kernelVersion);
             }
             if (this.systemProperty != null && this.systemProperty.length > 0) {
@@ -1068,7 +1079,7 @@ public interface IdleLogs {
             if (this.tag != 0) {
                 output.writeInt32(1, this.tag);
             }
-            if (!this.subTag.equals("")) {
+            if (!(this.subTag == null || this.subTag.equals(""))) {
                 output.writeString(2, this.subTag);
             }
             if (this.timeNanos != 0) {
@@ -1081,7 +1092,7 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (!this.data.equals("")) {
+            if (!(this.data == null || this.data.equals(""))) {
                 output.writeString(5, this.data);
             }
             super.writeTo(output);
@@ -1092,7 +1103,7 @@ public interface IdleLogs {
             if (this.tag != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(1, this.tag);
             }
-            if (!this.subTag.equals("")) {
+            if (!(this.subTag == null || this.subTag.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.subTag);
             }
             if (this.timeNanos != 0) {
@@ -1105,7 +1116,7 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (this.data.equals("")) {
+            if (this.data == null || this.data.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(5, this.data);
@@ -1242,7 +1253,7 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.key.equals("")) {
+            if (!(this.key == null || this.key.equals(""))) {
                 output.writeString(1, this.key);
             }
             if (this.value != null && this.value.length > 0) {
@@ -1257,7 +1268,7 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.key.equals("")) {
+            if (!(this.key == null || this.key.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.key);
             }
             if (this.value != null && this.value.length > 0) {
@@ -1537,7 +1548,7 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (!this.line.equals("")) {
+            if (!(this.line == null || this.line.equals(""))) {
                 output.writeString(2, this.line);
             }
             super.writeTo(output);
@@ -1552,7 +1563,7 @@ public interface IdleLogs {
                     }
                 }
             }
-            if (this.line.equals("")) {
+            if (this.line == null || this.line.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(2, this.line);
@@ -1830,7 +1841,7 @@ public interface IdleLogs {
             if (this.enforcing) {
                 output.writeBool(2, this.enforcing);
             }
-            if (!this.selinuxVersion.equals("")) {
+            if (!(this.selinuxVersion == null || this.selinuxVersion.equals(""))) {
                 output.writeString(3, this.selinuxVersion);
             }
             if (!Arrays.equals(this.selinuxPolicyHash, WireFormatNano.EMPTY_BYTES)) {
@@ -1847,7 +1858,7 @@ public interface IdleLogs {
             if (this.enforcing) {
                 size += CodedOutputByteBufferNano.computeBoolSize(2, this.enforcing);
             }
-            if (!this.selinuxVersion.equals("")) {
+            if (!(this.selinuxVersion == null || this.selinuxVersion.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.selinuxVersion);
             }
             if (Arrays.equals(this.selinuxPolicyHash, WireFormatNano.EMPTY_BYTES)) {
@@ -1972,7 +1983,7 @@ public interface IdleLogs {
             }
 
             public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     output.writeString(1, this.path);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -1983,7 +1994,7 @@ public interface IdleLogs {
 
             protected int computeSerializedSize() {
                 int size = super.computeSerializedSize();
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     size += CodedOutputByteBufferNano.computeStringSize(1, this.path);
                 }
                 if (Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -2314,7 +2325,7 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.path.equals("")) {
+            if (!(this.path == null || this.path.equals(""))) {
                 output.writeString(1, this.path);
             }
             if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -2323,7 +2334,7 @@ public interface IdleLogs {
             if (this.symlink) {
                 output.writeBool(3, this.symlink);
             }
-            if (!this.symlinkTarget.equals("")) {
+            if (!(this.symlinkTarget == null || this.symlinkTarget.equals(""))) {
                 output.writeString(4, this.symlinkTarget);
             }
             if (this.permissions != 0) {
@@ -2335,7 +2346,7 @@ public interface IdleLogs {
             if (this.fileGroup != 0) {
                 output.writeInt32(7, this.fileGroup);
             }
-            if (!this.seLinuxSecurityContext.equals("")) {
+            if (!(this.seLinuxSecurityContext == null || this.seLinuxSecurityContext.equals(""))) {
                 output.writeString(8, this.seLinuxSecurityContext);
             }
             super.writeTo(output);
@@ -2343,7 +2354,7 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.path.equals("")) {
+            if (!(this.path == null || this.path.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.path);
             }
             if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -2352,7 +2363,7 @@ public interface IdleLogs {
             if (this.symlink) {
                 size += CodedOutputByteBufferNano.computeBoolSize(3, this.symlink);
             }
-            if (!this.symlinkTarget.equals("")) {
+            if (!(this.symlinkTarget == null || this.symlinkTarget.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(4, this.symlinkTarget);
             }
             if (this.permissions != 0) {
@@ -2364,7 +2375,7 @@ public interface IdleLogs {
             if (this.fileGroup != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(7, this.fileGroup);
             }
-            if (this.seLinuxSecurityContext.equals("")) {
+            if (this.seLinuxSecurityContext == null || this.seLinuxSecurityContext.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(8, this.seLinuxSecurityContext);
@@ -2429,6 +2440,7 @@ public interface IdleLogs {
         public DeviceState deviceState;
         public EventLog[] events;
         public byte[] featuresBitField;
+        public AppInfo gmsCoreInfo;
         public boolean gmsCoreUuidUsed;
         public boolean isSidewinderDevice;
         public String[] jarExceptions;
@@ -2482,6 +2494,7 @@ public interface IdleLogs {
             this.locale = "";
             this.country = "";
             this.seLinuxInfo = null;
+            this.gmsCoreInfo = null;
             this.unknownFieldData = null;
             this.cachedSize = -1;
             return this;
@@ -2615,6 +2628,13 @@ public interface IdleLogs {
             } else if (!this.seLinuxInfo.equals(other.seLinuxInfo)) {
                 return false;
             }
+            if (this.gmsCoreInfo == null) {
+                if (other.gmsCoreInfo != null) {
+                    return false;
+                }
+            } else if (!this.gmsCoreInfo.equals(other.gmsCoreInfo)) {
+                return false;
+            }
             if (this.unknownFieldData != null && !this.unknownFieldData.isEmpty()) {
                 return this.unknownFieldData.equals(other.unknownFieldData);
             }
@@ -2722,6 +2742,12 @@ public interface IdleLogs {
             } else {
                 i = this.seLinuxInfo.hashCode();
             }
+            i2 = (i2 + i) * 31;
+            if (this.gmsCoreInfo == null) {
+                i = 0;
+            } else {
+                i = this.gmsCoreInfo.hashCode();
+            }
             i = (i2 + i) * 31;
             if (!(this.unknownFieldData == null || this.unknownFieldData.isEmpty())) {
                 i3 = this.unknownFieldData.hashCode();
@@ -2736,10 +2762,10 @@ public interface IdleLogs {
             if (this.gmsCoreUuidUsed) {
                 output.writeBool(2, this.gmsCoreUuidUsed);
             }
-            if (!this.sharedUuid.equals("")) {
+            if (!(this.sharedUuid == null || this.sharedUuid.equals(""))) {
                 output.writeString(3, this.sharedUuid);
             }
-            if (!this.uuid.equals("")) {
+            if (!(this.uuid == null || this.uuid.equals(""))) {
                 output.writeString(4, this.uuid);
             }
             if (this.jarExceptions != null && this.jarExceptions.length > 0) {
@@ -2752,16 +2778,16 @@ public interface IdleLogs {
             if (!Arrays.equals(this.featuresBitField, WireFormatNano.EMPTY_BYTES)) {
                 output.writeBytes(6, this.featuresBitField);
             }
-            if (!this.debugStatus.equals("")) {
+            if (!(this.debugStatus == null || this.debugStatus.equals(""))) {
                 output.writeString(7, this.debugStatus);
             }
             if (this.runSettings != null) {
                 output.writeMessage(8, this.runSettings);
             }
-            if (!this.signalTagsWhitelist.equals("")) {
+            if (!(this.signalTagsWhitelist == null || this.signalTagsWhitelist.equals(""))) {
                 output.writeString(9, this.signalTagsWhitelist);
             }
-            if (!this.buildFingerprint.equals("")) {
+            if (!(this.buildFingerprint == null || this.buildFingerprint.equals(""))) {
                 output.writeString(10, this.buildFingerprint);
             }
             if (this.systemPartitionFileInfo != null) {
@@ -2799,14 +2825,17 @@ public interface IdleLogs {
             if (this.deviceState != null) {
                 output.writeMessage(19, this.deviceState);
             }
-            if (!this.locale.equals("")) {
+            if (!(this.locale == null || this.locale.equals(""))) {
                 output.writeString(20, this.locale);
             }
-            if (!this.country.equals("")) {
+            if (!(this.country == null || this.country.equals(""))) {
                 output.writeString(21, this.country);
             }
             if (this.seLinuxInfo != null) {
                 output.writeMessage(22, this.seLinuxInfo);
+            }
+            if (this.gmsCoreInfo != null) {
+                output.writeMessage(23, this.gmsCoreInfo);
             }
             super.writeTo(output);
         }
@@ -2819,10 +2848,10 @@ public interface IdleLogs {
             if (this.gmsCoreUuidUsed) {
                 size += CodedOutputByteBufferNano.computeBoolSize(2, this.gmsCoreUuidUsed);
             }
-            if (!this.sharedUuid.equals("")) {
+            if (!(this.sharedUuid == null || this.sharedUuid.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.sharedUuid);
             }
-            if (!this.uuid.equals("")) {
+            if (!(this.uuid == null || this.uuid.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(4, this.uuid);
             }
             if (this.jarExceptions != null && this.jarExceptions.length > 0) {
@@ -2839,16 +2868,16 @@ public interface IdleLogs {
             if (!Arrays.equals(this.featuresBitField, WireFormatNano.EMPTY_BYTES)) {
                 size += CodedOutputByteBufferNano.computeBytesSize(6, this.featuresBitField);
             }
-            if (!this.debugStatus.equals("")) {
+            if (!(this.debugStatus == null || this.debugStatus.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(7, this.debugStatus);
             }
             if (this.runSettings != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(8, this.runSettings);
             }
-            if (!this.signalTagsWhitelist.equals("")) {
+            if (!(this.signalTagsWhitelist == null || this.signalTagsWhitelist.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(9, this.signalTagsWhitelist);
             }
-            if (!this.buildFingerprint.equals("")) {
+            if (!(this.buildFingerprint == null || this.buildFingerprint.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(10, this.buildFingerprint);
             }
             if (this.systemPartitionFileInfo != null) {
@@ -2886,14 +2915,17 @@ public interface IdleLogs {
             if (this.deviceState != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(19, this.deviceState);
             }
-            if (!this.locale.equals("")) {
+            if (!(this.locale == null || this.locale.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(20, this.locale);
             }
-            if (!this.country.equals("")) {
+            if (!(this.country == null || this.country.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(21, this.country);
             }
             if (this.seLinuxInfo != null) {
-                return size + CodedOutputByteBufferNano.computeMessageSize(22, this.seLinuxInfo);
+                size += CodedOutputByteBufferNano.computeMessageSize(22, this.seLinuxInfo);
+            }
+            if (this.gmsCoreInfo != null) {
+                return size + CodedOutputByteBufferNano.computeMessageSize(23, this.gmsCoreInfo);
             }
             return size;
         }
@@ -3044,6 +3076,12 @@ public interface IdleLogs {
                         }
                         input.readMessage(this.seLinuxInfo);
                         continue;
+                    case 186:
+                        if (this.gmsCoreInfo == null) {
+                            this.gmsCoreInfo = new AppInfo();
+                        }
+                        input.readMessage(this.gmsCoreInfo);
+                        continue;
                     default:
                         if (!super.storeUnknownField(input, tag)) {
                             break;
@@ -3178,10 +3216,10 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.subjectDn.equals("")) {
+            if (!(this.subjectDn == null || this.subjectDn.equals(""))) {
                 output.writeString(1, this.subjectDn);
             }
-            if (!this.issuerDn.equals("")) {
+            if (!(this.issuerDn == null || this.issuerDn.equals(""))) {
                 output.writeString(2, this.issuerDn);
             }
             if (!Arrays.equals(this.certTextSha256, WireFormatNano.EMPTY_BYTES)) {
@@ -3199,7 +3237,7 @@ public interface IdleLogs {
             if (!Arrays.equals(this.subjectPublicKeyInfo, WireFormatNano.EMPTY_BYTES)) {
                 output.writeBytes(7, this.subjectPublicKeyInfo);
             }
-            if (!this.certOid.equals("")) {
+            if (!(this.certOid == null || this.certOid.equals(""))) {
                 output.writeString(8, this.certOid);
             }
             if (!Arrays.equals(this.subjectPublicKeyInfoSha256, WireFormatNano.EMPTY_BYTES)) {
@@ -3210,10 +3248,10 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.subjectDn.equals("")) {
+            if (!(this.subjectDn == null || this.subjectDn.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.subjectDn);
             }
-            if (!this.issuerDn.equals("")) {
+            if (!(this.issuerDn == null || this.issuerDn.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.issuerDn);
             }
             if (!Arrays.equals(this.certTextSha256, WireFormatNano.EMPTY_BYTES)) {
@@ -3231,7 +3269,7 @@ public interface IdleLogs {
             if (!Arrays.equals(this.subjectPublicKeyInfo, WireFormatNano.EMPTY_BYTES)) {
                 size += CodedOutputByteBufferNano.computeBytesSize(7, this.subjectPublicKeyInfo);
             }
-            if (!this.certOid.equals("")) {
+            if (!(this.certOid == null || this.certOid.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(8, this.certOid);
             }
             if (Arrays.equals(this.subjectPublicKeyInfoSha256, WireFormatNano.EMPTY_BYTES)) {
@@ -3488,7 +3526,7 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.filePath.equals("")) {
+            if (!(this.filePath == null || this.filePath.equals(""))) {
                 output.writeString(1, this.filePath);
             }
             if (!Arrays.equals(this.hash, WireFormatNano.EMPTY_BYTES)) {
@@ -3499,7 +3537,7 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.filePath.equals("")) {
+            if (!(this.filePath == null || this.filePath.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.filePath);
             }
             if (Arrays.equals(this.hash, WireFormatNano.EMPTY_BYTES)) {
@@ -3615,7 +3653,7 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.buildString.equals("")) {
+            if (!(this.buildString == null || this.buildString.equals(""))) {
                 output.writeString(1, this.buildString);
             }
             if (!Arrays.equals(this.topLevelHash, WireFormatNano.EMPTY_BYTES)) {
@@ -3636,7 +3674,7 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.buildString.equals("")) {
+            if (!(this.buildString == null || this.buildString.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.buildString);
             }
             if (!Arrays.equals(this.topLevelHash, WireFormatNano.EMPTY_BYTES)) {
@@ -4204,10 +4242,10 @@ public interface IdleLogs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.name.equals("")) {
+            if (!(this.name == null || this.name.equals(""))) {
                 output.writeString(1, this.name);
             }
-            if (!this.value.equals("")) {
+            if (!(this.value == null || this.value.equals(""))) {
                 output.writeString(2, this.value);
             }
             super.writeTo(output);
@@ -4215,10 +4253,10 @@ public interface IdleLogs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.name.equals("")) {
+            if (!(this.name == null || this.name.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.name);
             }
-            if (this.value.equals("")) {
+            if (this.value == null || this.value.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(2, this.value);

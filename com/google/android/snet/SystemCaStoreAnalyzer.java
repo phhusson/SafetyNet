@@ -288,19 +288,16 @@ class SystemCaStoreAnalyzer {
 
     private Set<Bytes> spkiSha256Whitelist() {
         Set<Bytes> whitelist = new HashSet();
-        int spkiWhitelistResId = this.mGBundle.getSpkiWhitelistResId();
-        if (spkiWhitelistResId != 0) {
-            byte[] whitelistRawProtoBytes = Utils.readInputStream(this.mContext.getResources().openRawResource(spkiWhitelistResId));
-            if (whitelistRawProtoBytes != null) {
-                try {
-                    SystemCaStoreWhitelist whitelistProto = SystemCaStoreWhitelist.parseFrom(whitelistRawProtoBytes);
-                    if (whitelistProto.subjectPublicKeyInfoSha256 != null) {
-                        for (byte[] spkiHash : whitelistProto.subjectPublicKeyInfoSha256) {
-                            whitelist.add(new Bytes(spkiHash));
-                        }
+        byte[] whitelistRawProtoBytes = Utils.loadFromResources("/spki_whitelist");
+        if (whitelistRawProtoBytes != null) {
+            try {
+                SystemCaStoreWhitelist whitelistProto = SystemCaStoreWhitelist.parseFrom(whitelistRawProtoBytes);
+                if (whitelistProto.subjectPublicKeyInfoSha256 != null) {
+                    for (byte[] spkiHash : whitelistProto.subjectPublicKeyInfoSha256) {
+                        whitelist.add(new Bytes(spkiHash));
                     }
-                } catch (InvalidProtocolBufferNanoException e) {
                 }
+            } catch (InvalidProtocolBufferNanoException e) {
             }
         }
         return whitelist;

@@ -112,10 +112,10 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 output.writeString(1, this.packageName);
             }
-            if (!this.apkSha256.equals("")) {
+            if (!(this.apkSha256 == null || this.apkSha256.equals(""))) {
                 output.writeString(2, this.apkSha256);
             }
             if (this.signatureSha256 != null && this.signatureSha256.length > 0) {
@@ -145,10 +145,10 @@ public interface Logs {
             int dataCount;
             int dataSize;
             int size = super.computeSerializedSize();
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.packageName);
             }
-            if (!this.apkSha256.equals("")) {
+            if (!(this.apkSha256 == null || this.apkSha256.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.apkSha256);
             }
             if (this.signatureSha256 != null && this.signatureSha256.length > 0) {
@@ -536,13 +536,13 @@ public interface Logs {
             if (!Arrays.equals(this.certChainSha256, WireFormatNano.EMPTY_BYTES)) {
                 output.writeBytes(2, this.certChainSha256);
             }
-            if (!this.jsonData.equals("")) {
+            if (!(this.jsonData == null || this.jsonData.equals(""))) {
                 output.writeString(3, this.jsonData);
             }
-            if (!this.signature.equals("")) {
+            if (!(this.signature == null || this.signature.equals(""))) {
                 output.writeString(4, this.signature);
             }
-            if (!this.errorMsg.equals("")) {
+            if (!(this.errorMsg == null || this.errorMsg.equals(""))) {
                 output.writeString(5, this.errorMsg);
             }
             super.writeTo(output);
@@ -556,13 +556,13 @@ public interface Logs {
             if (!Arrays.equals(this.certChainSha256, WireFormatNano.EMPTY_BYTES)) {
                 size += CodedOutputByteBufferNano.computeBytesSize(2, this.certChainSha256);
             }
-            if (!this.jsonData.equals("")) {
+            if (!(this.jsonData == null || this.jsonData.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.jsonData);
             }
-            if (!this.signature.equals("")) {
+            if (!(this.signature == null || this.signature.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(4, this.signature);
             }
-            if (this.errorMsg.equals("")) {
+            if (this.errorMsg == null || this.errorMsg.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(5, this.errorMsg);
@@ -684,7 +684,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.ipAddressUsed.equals("")) {
+            if (!(this.ipAddressUsed == null || this.ipAddressUsed.equals(""))) {
                 output.writeString(1, this.ipAddressUsed);
             }
             if (this.responseCode != 0) {
@@ -701,7 +701,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.ipAddressUsed.equals("")) {
+            if (!(this.ipAddressUsed == null || this.ipAddressUsed.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.ipAddressUsed);
             }
             if (this.responseCode != 0) {
@@ -827,7 +827,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.carrierName.equals("")) {
+            if (!(this.carrierName == null || this.carrierName.equals(""))) {
                 output.writeString(1, this.carrierName);
             }
             super.writeTo(output);
@@ -835,7 +835,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (this.carrierName.equals("")) {
+            if (this.carrierName == null || this.carrierName.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(1, this.carrierName);
@@ -964,7 +964,7 @@ public interface Logs {
             if (this.availableNetworkTypes != 0) {
                 output.writeInt32(2, this.availableNetworkTypes);
             }
-            if (!this.operatorName.equals("")) {
+            if (!(this.operatorName == null || this.operatorName.equals(""))) {
                 output.writeString(3, this.operatorName);
             }
             if (this.dnsServers != null && this.dnsServers.length > 0) {
@@ -985,7 +985,7 @@ public interface Logs {
             if (this.availableNetworkTypes != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(2, this.availableNetworkTypes);
             }
-            if (!this.operatorName.equals("")) {
+            if (!(this.operatorName == null || this.operatorName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.operatorName);
             }
             if (this.dnsServers == null || this.dnsServers.length <= 0) {
@@ -1067,6 +1067,7 @@ public interface Logs {
     }
 
     public static final class DeviceSettings extends ExtendableMessageNano<DeviceSettings> {
+        public static final int ENROLLED = 1;
         public static final int FACE_PATTERN = 5;
         public static final int FACE_PIN = 4;
         public static final int NONE = 0;
@@ -1074,12 +1075,15 @@ public interface Logs {
         public static final int NOTIFICATION_PRIVATE = 1;
         public static final int NOTIFICATION_PUBLIC = 2;
         public static final int NOTIFICATION_SECRET = 3;
+        public static final int NOT_SUPPORTED = 0;
         public static final int PASSWORD = 6;
         public static final int PATTERN = 3;
         public static final int PIN = 2;
         public static final int SECURE_UNKNOWN = 1;
+        public static final int UNENROLLED = 2;
         private static volatile DeviceSettings[] _emptyArray;
         public boolean adbEnabled;
+        public int fingerprintStatus;
         public int lockScreenNotificationType;
         public int lockScreenTimeout;
         public int lockScreenType;
@@ -1112,6 +1116,7 @@ public interface Logs {
             this.smartLockStatusObtained = false;
             this.smartLockEnabled = false;
             this.storageEncryptionStatus = 0;
+            this.fingerprintStatus = 0;
             this.unknownFieldData = null;
             this.cachedSize = -1;
             return this;
@@ -1125,7 +1130,7 @@ public interface Logs {
                 return false;
             }
             DeviceSettings other = (DeviceSettings) o;
-            if (this.adbEnabled != other.adbEnabled || this.nonMarketAppsEnabled != other.nonMarketAppsEnabled || this.lockScreenType != other.lockScreenType || this.lockScreenTimeout != other.lockScreenTimeout || this.lockScreenNotificationType != other.lockScreenNotificationType || this.smartLockStatusObtained != other.smartLockStatusObtained || this.smartLockEnabled != other.smartLockEnabled || this.storageEncryptionStatus != other.storageEncryptionStatus) {
+            if (this.adbEnabled != other.adbEnabled || this.nonMarketAppsEnabled != other.nonMarketAppsEnabled || this.lockScreenType != other.lockScreenType || this.lockScreenTimeout != other.lockScreenTimeout || this.lockScreenNotificationType != other.lockScreenNotificationType || this.smartLockStatusObtained != other.smartLockStatusObtained || this.smartLockEnabled != other.smartLockEnabled || this.storageEncryptionStatus != other.storageEncryptionStatus || this.fingerprintStatus != other.fingerprintStatus) {
                 return false;
             }
             if (this.unknownFieldData != null && !this.unknownFieldData.isEmpty()) {
@@ -1156,7 +1161,7 @@ public interface Logs {
             if (!this.smartLockEnabled) {
                 i2 = 1237;
             }
-            i2 = (((i + i2) * 31) + this.storageEncryptionStatus) * 31;
+            i2 = (((((i + i2) * 31) + this.storageEncryptionStatus) * 31) + this.fingerprintStatus) * 31;
             if (this.unknownFieldData == null || this.unknownFieldData.isEmpty()) {
                 i = 0;
             } else {
@@ -1190,6 +1195,9 @@ public interface Logs {
             if (this.storageEncryptionStatus != 0) {
                 output.writeInt32(8, this.storageEncryptionStatus);
             }
+            if (this.fingerprintStatus != 0) {
+                output.writeInt32(9, this.fingerprintStatus);
+            }
             super.writeTo(output);
         }
 
@@ -1217,7 +1225,10 @@ public interface Logs {
                 size += CodedOutputByteBufferNano.computeBoolSize(7, this.smartLockEnabled);
             }
             if (this.storageEncryptionStatus != 0) {
-                return size + CodedOutputByteBufferNano.computeInt32Size(8, this.storageEncryptionStatus);
+                size += CodedOutputByteBufferNano.computeInt32Size(8, this.storageEncryptionStatus);
+            }
+            if (this.fingerprintStatus != 0) {
+                return size + CodedOutputByteBufferNano.computeInt32Size(9, this.fingerprintStatus);
             }
             return size;
         }
@@ -1274,6 +1285,17 @@ public interface Logs {
                     case 64:
                         this.storageEncryptionStatus = input.readInt32();
                         continue;
+                    case 72:
+                        value = input.readInt32();
+                        switch (value) {
+                            case 0:
+                            case 1:
+                            case 2:
+                                this.fingerprintStatus = value;
+                                break;
+                            default:
+                                continue;
+                        }
                     default:
                         if (!super.storeUnknownField(input, tag)) {
                             break;
@@ -1447,10 +1469,10 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.verifiedBootState.equals("")) {
+            if (!(this.verifiedBootState == null || this.verifiedBootState.equals(""))) {
                 output.writeString(1, this.verifiedBootState);
             }
-            if (!this.verityMode.equals("")) {
+            if (!(this.verityMode == null || this.verityMode.equals(""))) {
                 output.writeString(2, this.verityMode);
             }
             if (this.oemUnlockSupported != 0) {
@@ -1459,16 +1481,16 @@ public interface Logs {
             if (this.oemLocked != 0) {
                 output.writeInt32(4, this.oemLocked);
             }
-            if (!this.securityPatchLevel.equals("")) {
+            if (!(this.securityPatchLevel == null || this.securityPatchLevel.equals(""))) {
                 output.writeString(5, this.securityPatchLevel);
             }
-            if (!this.productBrand.equals("")) {
+            if (!(this.productBrand == null || this.productBrand.equals(""))) {
                 output.writeString(6, this.productBrand);
             }
-            if (!this.productModel.equals("")) {
+            if (!(this.productModel == null || this.productModel.equals(""))) {
                 output.writeString(7, this.productModel);
             }
-            if (!this.kernelVersion.equals("")) {
+            if (!(this.kernelVersion == null || this.kernelVersion.equals(""))) {
                 output.writeString(8, this.kernelVersion);
             }
             if (this.systemProperty != null && this.systemProperty.length > 0) {
@@ -1483,10 +1505,10 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.verifiedBootState.equals("")) {
+            if (!(this.verifiedBootState == null || this.verifiedBootState.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.verifiedBootState);
             }
-            if (!this.verityMode.equals("")) {
+            if (!(this.verityMode == null || this.verityMode.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.verityMode);
             }
             if (this.oemUnlockSupported != 0) {
@@ -1495,16 +1517,16 @@ public interface Logs {
             if (this.oemLocked != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(4, this.oemLocked);
             }
-            if (!this.securityPatchLevel.equals("")) {
+            if (!(this.securityPatchLevel == null || this.securityPatchLevel.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(5, this.securityPatchLevel);
             }
-            if (!this.productBrand.equals("")) {
+            if (!(this.productBrand == null || this.productBrand.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(6, this.productBrand);
             }
-            if (!this.productModel.equals("")) {
+            if (!(this.productModel == null || this.productModel.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(7, this.productModel);
             }
-            if (!this.kernelVersion.equals("")) {
+            if (!(this.kernelVersion == null || this.kernelVersion.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(8, this.kernelVersion);
             }
             if (this.systemProperty != null && this.systemProperty.length > 0) {
@@ -1660,7 +1682,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.mailServerName.equals("")) {
+            if (!(this.mailServerName == null || this.mailServerName.equals(""))) {
                 output.writeString(1, this.mailServerName);
             }
             if (this.mailServerIpAddresses != null && this.mailServerIpAddresses.length > 0) {
@@ -1675,7 +1697,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.mailServerName.equals("")) {
+            if (!(this.mailServerName == null || this.mailServerName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.mailServerName);
             }
             if (this.mailServerIpAddresses == null || this.mailServerIpAddresses.length <= 0) {
@@ -1824,10 +1846,10 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.domainName.equals("")) {
+            if (!(this.domainName == null || this.domainName.equals(""))) {
                 output.writeString(1, this.domainName);
             }
-            if (!this.dnsServerQueried.equals("")) {
+            if (!(this.dnsServerQueried == null || this.dnsServerQueried.equals(""))) {
                 output.writeString(2, this.dnsServerQueried);
             }
             if (this.servers != null && this.servers.length > 0) {
@@ -1845,10 +1867,10 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.domainName.equals("")) {
+            if (!(this.domainName == null || this.domainName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.domainName);
             }
-            if (!this.dnsServerQueried.equals("")) {
+            if (!(this.dnsServerQueried == null || this.dnsServerQueried.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.dnsServerQueried);
             }
             if (this.servers != null && this.servers.length > 0) {
@@ -2017,7 +2039,7 @@ public interface Logs {
             if (this.tag != 0) {
                 output.writeInt32(1, this.tag);
             }
-            if (!this.subTag.equals("")) {
+            if (!(this.subTag == null || this.subTag.equals(""))) {
                 output.writeString(2, this.subTag);
             }
             if (this.timeNanos != 0) {
@@ -2030,7 +2052,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.data.equals("")) {
+            if (!(this.data == null || this.data.equals(""))) {
                 output.writeString(5, this.data);
             }
             super.writeTo(output);
@@ -2041,7 +2063,7 @@ public interface Logs {
             if (this.tag != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(1, this.tag);
             }
-            if (!this.subTag.equals("")) {
+            if (!(this.subTag == null || this.subTag.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(2, this.subTag);
             }
             if (this.timeNanos != 0) {
@@ -2054,7 +2076,7 @@ public interface Logs {
                     }
                 }
             }
-            if (this.data.equals("")) {
+            if (this.data == null || this.data.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(5, this.data);
@@ -2255,7 +2277,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.filename.equals("")) {
+            if (!(this.filename == null || this.filename.equals(""))) {
                 output.writeString(1, this.filename);
             }
             if (this.present) {
@@ -2276,7 +2298,7 @@ public interface Logs {
             if (this.fileGroup != 0) {
                 output.writeInt32(7, this.fileGroup);
             }
-            if (!this.seLinuxSecurityContext.equals("")) {
+            if (!(this.seLinuxSecurityContext == null || this.seLinuxSecurityContext.equals(""))) {
                 output.writeString(8, this.seLinuxSecurityContext);
             }
             if (this.executable) {
@@ -2285,7 +2307,7 @@ public interface Logs {
             if (this.symlink) {
                 output.writeBool(10, this.symlink);
             }
-            if (!this.symlinkTarget.equals("")) {
+            if (!(this.symlinkTarget == null || this.symlinkTarget.equals(""))) {
                 output.writeString(11, this.symlinkTarget);
             }
             super.writeTo(output);
@@ -2293,7 +2315,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.filename.equals("")) {
+            if (!(this.filename == null || this.filename.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.filename);
             }
             if (this.present) {
@@ -2314,7 +2336,7 @@ public interface Logs {
             if (this.fileGroup != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(7, this.fileGroup);
             }
-            if (!this.seLinuxSecurityContext.equals("")) {
+            if (!(this.seLinuxSecurityContext == null || this.seLinuxSecurityContext.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(8, this.seLinuxSecurityContext);
             }
             if (this.executable) {
@@ -2323,7 +2345,7 @@ public interface Logs {
             if (this.symlink) {
                 size += CodedOutputByteBufferNano.computeBoolSize(10, this.symlink);
             }
-            if (this.symlinkTarget.equals("")) {
+            if (this.symlinkTarget == null || this.symlinkTarget.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(11, this.symlinkTarget);
@@ -2585,7 +2607,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.key.equals("")) {
+            if (!(this.key == null || this.key.equals(""))) {
                 output.writeString(1, this.key);
             }
             if (this.value != null && this.value.length > 0) {
@@ -2600,7 +2622,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.key.equals("")) {
+            if (!(this.key == null || this.key.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.key);
             }
             if (this.value != null && this.value.length > 0) {
@@ -2880,7 +2902,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.line.equals("")) {
+            if (!(this.line == null || this.line.equals(""))) {
                 output.writeString(2, this.line);
             }
             super.writeTo(output);
@@ -2895,7 +2917,7 @@ public interface Logs {
                     }
                 }
             }
-            if (this.line.equals("")) {
+            if (this.line == null || this.line.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(2, this.line);
@@ -3210,13 +3232,13 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 output.writeString(1, this.packageName);
             }
             if (this.versionCode != 0) {
                 output.writeInt32(2, this.versionCode);
             }
-            if (!this.versionName.equals("")) {
+            if (!(this.versionName == null || this.versionName.equals(""))) {
                 output.writeString(3, this.versionName);
             }
             if (this.noDefault) {
@@ -3227,13 +3249,13 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.packageName.equals("")) {
+            if (!(this.packageName == null || this.packageName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.packageName);
             }
             if (this.versionCode != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(2, this.versionCode);
             }
-            if (!this.versionName.equals("")) {
+            if (!(this.versionName == null || this.versionName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.versionName);
             }
             if (this.noDefault) {
@@ -3363,7 +3385,7 @@ public interface Logs {
             if (this.localIp) {
                 output.writeBool(2, this.localIp);
             }
-            if (!this.address.equals("")) {
+            if (!(this.address == null || this.address.equals(""))) {
                 output.writeString(3, this.address);
             }
             super.writeTo(output);
@@ -3377,7 +3399,7 @@ public interface Logs {
             if (this.localIp) {
                 size += CodedOutputByteBufferNano.computeBoolSize(2, this.localIp);
             }
-            if (this.address.equals("")) {
+            if (this.address == null || this.address.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(3, this.address);
@@ -3661,7 +3683,7 @@ public interface Logs {
             if (this.jpegNewlyTampered) {
                 output.writeBool(5, this.jpegNewlyTampered);
             }
-            if (!this.jpegFileName.equals("")) {
+            if (!(this.jpegFileName == null || this.jpegFileName.equals(""))) {
                 output.writeString(6, this.jpegFileName);
             }
             if (this.jpegModificationTime != 0) {
@@ -3687,7 +3709,7 @@ public interface Logs {
             if (this.jpegNewlyTampered) {
                 size += CodedOutputByteBufferNano.computeBoolSize(5, this.jpegNewlyTampered);
             }
-            if (!this.jpegFileName.equals("")) {
+            if (!(this.jpegFileName == null || this.jpegFileName.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(6, this.jpegFileName);
             }
             if (this.jpegModificationTime != 0) {
@@ -3936,7 +3958,7 @@ public interface Logs {
             }
 
             public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     output.writeString(1, this.path);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -3947,7 +3969,7 @@ public interface Logs {
 
             protected int computeSerializedSize() {
                 int size = super.computeSerializedSize();
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     size += CodedOutputByteBufferNano.computeStringSize(1, this.path);
                 }
                 if (Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -4722,7 +4744,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.locale.equals("")) {
+            if (!(this.locale == null || this.locale.equals(""))) {
                 output.writeString(3, this.locale);
             }
             if (this.preferredBrowser != null) {
@@ -4765,7 +4787,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.proxyAddress.equals("")) {
+            if (!(this.proxyAddress == null || this.proxyAddress.equals(""))) {
                 output.writeString(12, this.proxyAddress);
             }
             if (this.setuidFileInfo != null) {
@@ -4774,7 +4796,7 @@ public interface Logs {
             if (this.seLinuxInfo != null) {
                 output.writeMessage(14, this.seLinuxInfo);
             }
-            if (!this.uuid.equals("")) {
+            if (!(this.uuid == null || this.uuid.equals(""))) {
                 output.writeString(15, this.uuid);
             }
             if (this.gmsCoreUuidUsed) {
@@ -4786,7 +4808,7 @@ public interface Logs {
             if (this.appsList != null) {
                 output.writeMessage(18, this.appsList);
             }
-            if (!this.googleWebpageHtml.equals("")) {
+            if (!(this.googleWebpageHtml == null || this.googleWebpageHtml.equals(""))) {
                 output.writeString(19, this.googleWebpageHtml);
             }
             if (this.sslv3Fallback != null) {
@@ -4805,7 +4827,7 @@ public interface Logs {
             if (this.sdCardTamperedInfo != null) {
                 output.writeMessage(23, this.sdCardTamperedInfo);
             }
-            if (!this.debugStatus.equals("")) {
+            if (!(this.debugStatus == null || this.debugStatus.equals(""))) {
                 output.writeString(24, this.debugStatus);
             }
             if (this.runSettings != null) {
@@ -4826,16 +4848,16 @@ public interface Logs {
             if (this.systemPartitionFileInfo != null) {
                 output.writeMessage(30, this.systemPartitionFileInfo);
             }
-            if (!this.buildFingerprint.equals("")) {
+            if (!(this.buildFingerprint == null || this.buildFingerprint.equals(""))) {
                 output.writeString(31, this.buildFingerprint);
             }
-            if (!this.signalTagsWhitelist.equals("")) {
+            if (!(this.signalTagsWhitelist == null || this.signalTagsWhitelist.equals(""))) {
                 output.writeString(32, this.signalTagsWhitelist);
             }
             if (this.attestationResult != null) {
                 output.writeMessage(33, this.attestationResult);
             }
-            if (!this.sharedUuid.equals("")) {
+            if (!(this.sharedUuid == null || this.sharedUuid.equals(""))) {
                 output.writeString(34, this.sharedUuid);
             }
             if (this.gmsCoreInfo != null) {
@@ -4861,7 +4883,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.country.equals("")) {
+            if (!(this.country == null || this.country.equals(""))) {
                 output.writeString(40, this.country);
             }
             if (this.deviceState != null) {
@@ -4891,7 +4913,7 @@ public interface Logs {
                 }
                 size = (size + dataSize) + (dataCount * 1);
             }
-            if (!this.locale.equals("")) {
+            if (!(this.locale == null || this.locale.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(3, this.locale);
             }
             if (this.preferredBrowser != null) {
@@ -4934,7 +4956,7 @@ public interface Logs {
                     }
                 }
             }
-            if (!this.proxyAddress.equals("")) {
+            if (!(this.proxyAddress == null || this.proxyAddress.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(12, this.proxyAddress);
             }
             if (this.setuidFileInfo != null) {
@@ -4943,7 +4965,7 @@ public interface Logs {
             if (this.seLinuxInfo != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(14, this.seLinuxInfo);
             }
-            if (!this.uuid.equals("")) {
+            if (!(this.uuid == null || this.uuid.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(15, this.uuid);
             }
             if (this.gmsCoreUuidUsed) {
@@ -4955,7 +4977,7 @@ public interface Logs {
             if (this.appsList != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(18, this.appsList);
             }
-            if (!this.googleWebpageHtml.equals("")) {
+            if (!(this.googleWebpageHtml == null || this.googleWebpageHtml.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(19, this.googleWebpageHtml);
             }
             if (this.sslv3Fallback != null) {
@@ -4974,7 +4996,7 @@ public interface Logs {
             if (this.sdCardTamperedInfo != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(23, this.sdCardTamperedInfo);
             }
-            if (!this.debugStatus.equals("")) {
+            if (!(this.debugStatus == null || this.debugStatus.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(24, this.debugStatus);
             }
             if (this.runSettings != null) {
@@ -4995,16 +5017,16 @@ public interface Logs {
             if (this.systemPartitionFileInfo != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(30, this.systemPartitionFileInfo);
             }
-            if (!this.buildFingerprint.equals("")) {
+            if (!(this.buildFingerprint == null || this.buildFingerprint.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(31, this.buildFingerprint);
             }
-            if (!this.signalTagsWhitelist.equals("")) {
+            if (!(this.signalTagsWhitelist == null || this.signalTagsWhitelist.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(32, this.signalTagsWhitelist);
             }
             if (this.attestationResult != null) {
                 size += CodedOutputByteBufferNano.computeMessageSize(33, this.attestationResult);
             }
-            if (!this.sharedUuid.equals("")) {
+            if (!(this.sharedUuid == null || this.sharedUuid.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(34, this.sharedUuid);
             }
             if (this.gmsCoreInfo != null) {
@@ -5034,7 +5056,7 @@ public interface Logs {
                 }
                 size = (size + dataSize) + (dataCount * 2);
             }
-            if (!this.country.equals("")) {
+            if (!(this.country == null || this.country.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(40, this.country);
             }
             if (this.deviceState != null) {
@@ -5612,7 +5634,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.host.equals("")) {
+            if (!(this.host == null || this.host.equals(""))) {
                 output.writeString(1, this.host);
             }
             if (this.socketCreated) {
@@ -5621,10 +5643,10 @@ public interface Logs {
             if (this.sessionEstablished) {
                 output.writeBool(3, this.sessionEstablished);
             }
-            if (!this.protocol.equals("")) {
+            if (!(this.protocol == null || this.protocol.equals(""))) {
                 output.writeString(4, this.protocol);
             }
-            if (!this.cipherSuite.equals("")) {
+            if (!(this.cipherSuite == null || this.cipherSuite.equals(""))) {
                 output.writeString(5, this.cipherSuite);
             }
             if (this.peerCertificatesAcquired) {
@@ -5685,7 +5707,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.host.equals("")) {
+            if (!(this.host == null || this.host.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.host);
             }
             if (this.socketCreated) {
@@ -5694,10 +5716,10 @@ public interface Logs {
             if (this.sessionEstablished) {
                 size += CodedOutputByteBufferNano.computeBoolSize(3, this.sessionEstablished);
             }
-            if (!this.protocol.equals("")) {
+            if (!(this.protocol == null || this.protocol.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(4, this.protocol);
             }
-            if (!this.cipherSuite.equals("")) {
+            if (!(this.cipherSuite == null || this.cipherSuite.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(5, this.cipherSuite);
             }
             if (this.peerCertificatesAcquired) {
@@ -6002,7 +6024,7 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.host.equals("")) {
+            if (!(this.host == null || this.host.equals(""))) {
                 output.writeString(1, this.host);
             }
             if (this.httpClientUsed != 1) {
@@ -6011,10 +6033,10 @@ public interface Logs {
             if (this.responseCode != 0) {
                 output.writeInt32(3, this.responseCode);
             }
-            if (!this.redirectHeaderValue.equals("")) {
+            if (!(this.redirectHeaderValue == null || this.redirectHeaderValue.equals(""))) {
                 output.writeString(4, this.redirectHeaderValue);
             }
-            if (!this.endPointUrl.equals("")) {
+            if (!(this.endPointUrl == null || this.endPointUrl.equals(""))) {
                 output.writeString(5, this.endPointUrl);
             }
             if (this.ipAddressesForEndPointUrl != null && this.ipAddressesForEndPointUrl.length > 0) {
@@ -6035,7 +6057,7 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.host.equals("")) {
+            if (!(this.host == null || this.host.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.host);
             }
             if (this.httpClientUsed != 1) {
@@ -6044,10 +6066,10 @@ public interface Logs {
             if (this.responseCode != 0) {
                 size += CodedOutputByteBufferNano.computeInt32Size(3, this.responseCode);
             }
-            if (!this.redirectHeaderValue.equals("")) {
+            if (!(this.redirectHeaderValue == null || this.redirectHeaderValue.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(4, this.redirectHeaderValue);
             }
-            if (!this.endPointUrl.equals("")) {
+            if (!(this.endPointUrl == null || this.endPointUrl.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(5, this.endPointUrl);
             }
             if (this.ipAddressesForEndPointUrl != null && this.ipAddressesForEndPointUrl.length > 0) {
@@ -6240,7 +6262,7 @@ public interface Logs {
             }
 
             public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     output.writeString(1, this.path);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -6249,7 +6271,7 @@ public interface Logs {
                 if (this.symlink) {
                     output.writeBool(3, this.symlink);
                 }
-                if (!this.symlinkTarget.equals("")) {
+                if (!(this.symlinkTarget == null || this.symlinkTarget.equals(""))) {
                     output.writeString(4, this.symlinkTarget);
                 }
                 super.writeTo(output);
@@ -6257,7 +6279,7 @@ public interface Logs {
 
             protected int computeSerializedSize() {
                 int size = super.computeSerializedSize();
-                if (!this.path.equals("")) {
+                if (!(this.path == null || this.path.equals(""))) {
                     size += CodedOutputByteBufferNano.computeStringSize(1, this.path);
                 }
                 if (!Arrays.equals(this.sha256, WireFormatNano.EMPTY_BYTES)) {
@@ -6266,7 +6288,7 @@ public interface Logs {
                 if (this.symlink) {
                     size += CodedOutputByteBufferNano.computeBoolSize(3, this.symlink);
                 }
-                if (this.symlinkTarget.equals("")) {
+                if (this.symlinkTarget == null || this.symlinkTarget.equals("")) {
                     return size;
                 }
                 return size + CodedOutputByteBufferNano.computeStringSize(4, this.symlinkTarget);
@@ -6524,10 +6546,10 @@ public interface Logs {
         }
 
         public void writeTo(CodedOutputByteBufferNano output) throws IOException {
-            if (!this.name.equals("")) {
+            if (!(this.name == null || this.name.equals(""))) {
                 output.writeString(1, this.name);
             }
-            if (!this.value.equals("")) {
+            if (!(this.value == null || this.value.equals(""))) {
                 output.writeString(2, this.value);
             }
             super.writeTo(output);
@@ -6535,10 +6557,10 @@ public interface Logs {
 
         protected int computeSerializedSize() {
             int size = super.computeSerializedSize();
-            if (!this.name.equals("")) {
+            if (!(this.name == null || this.name.equals(""))) {
                 size += CodedOutputByteBufferNano.computeStringSize(1, this.name);
             }
-            if (this.value.equals("")) {
+            if (this.value == null || this.value.equals("")) {
                 return size;
             }
             return size + CodedOutputByteBufferNano.computeStringSize(2, this.value);

@@ -126,6 +126,7 @@ class SnetFilesDataStore {
 
     synchronized List<FilesInfo> get(List<String> fullPaths) {
         List<FilesInfo> results;
+        Cursor cursor;
         results = new ArrayList();
         open();
         for (String fullPath : fullPaths) {

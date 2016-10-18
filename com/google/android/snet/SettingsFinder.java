@@ -7,6 +7,7 @@ import android.app.Notification.Builder;
 import android.app.admin.DevicePolicyManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,6 +17,9 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 class SettingsFinder {
+    private static final int FINGERPRINT_ENROLLED = 1;
+    private static final int FINGERPRINT_NOT_SUPPORTED = 0;
+    private static final int FINGERPRINT_UNENROLLED = 2;
     private static final int LOCK_SCREEN_TYPE_FACE_PATTERN = 5;
     private static final int LOCK_SCREEN_TYPE_FACE_PIN = 4;
     private static final int LOCK_SCREEN_TYPE_NONE = 0;
@@ -38,6 +42,7 @@ class SettingsFinder {
 
     public static class DeviceSettings {
         public boolean adbEnabled;
+        public int fingerprintStatus;
         public int lockScreenTimeout;
         public int lockScreenType;
         public boolean nonMarketAppsEnabled;
@@ -74,6 +79,9 @@ class SettingsFinder {
             }
         }
         getStorageEncryptionStatus();
+        if (VERSION.SDK_INT >= 23) {
+            getFingerprintStatus();
+        }
         return this.mDeviceSettings;
     }
 
@@ -175,5 +183,17 @@ class SettingsFinder {
     private void getStorageEncryptionStatusGEHoneycomb() {
         DevicePolicyManager devicePolicyManager = (DevicePolicyManager) this.mContext.getSystemService("device_policy");
         this.mDeviceSettings.storageEncryptionStatus = devicePolicyManager.getStorageEncryptionStatus();
+    }
+
+    @TargetApi(23)
+    private void getFingerprintStatus() {
+        FingerprintManager fingerprintManager = (FingerprintManager) this.mContext.getSystemService("fingerprint");
+        if (!fingerprintManager.isHardwareDetected()) {
+            this.mDeviceSettings.fingerprintStatus = 0;
+        } else if (fingerprintManager.hasEnrolledFingerprints()) {
+            this.mDeviceSettings.fingerprintStatus = 1;
+        } else {
+            this.mDeviceSettings.fingerprintStatus = 2;
+        }
     }
 }

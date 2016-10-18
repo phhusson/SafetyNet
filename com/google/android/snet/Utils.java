@@ -19,6 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 class Utils {
+    private static final boolean DEBUG = false;
+    private static final String TAG = Utils.class.getSimpleName();
     private static final char[] hexDigits = "0123456789abcdef".toCharArray();
 
     static class Bytes {
@@ -449,5 +451,25 @@ class Utils {
 
     static String readVirtualFile(String path) {
         return readVirtualFile(new File(path));
+    }
+
+    static byte[] loadFromResources(String resName) {
+        InputStream inputStream = Snet.class.getResourceAsStream(resName);
+        if (inputStream == null) {
+            return null;
+        }
+        byte[] buf = new byte[8192];
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while (true) {
+            try {
+                int bytesRead = inputStream.read(buf);
+                if (bytesRead == -1) {
+                    return output.toByteArray();
+                }
+                output.write(buf, 0, bytesRead);
+            } catch (IOException e) {
+                return null;
+            }
+        }
     }
 }

@@ -193,7 +193,6 @@ Error: java.util.NoSuchElementException
 
     List<SslRedirectInfo> analyzeSslRedirects() {
         HttpURLConnection urlConnection;
-        InputStream inputStream;
         URL url;
         Throwable th;
         NetworkInfo activeNetworkInfo = ((ConnectivityManager) this.mContext.getSystemService("connectivity")).getActiveNetworkInfo();
@@ -203,6 +202,7 @@ Error: java.util.NoSuchElementException
         List<SslRedirectInfo> redirectInfoList = new ArrayList();
         SecureRandom random = new SecureRandom();
         for (String requestAddress : this.mGBundle.getSslRedirectsTestHosts().split(Csv.COMMA)) {
+            InputStream inputStream;
             if (!TextUtils.isEmpty(requestAddress)) {
                 SslRedirectInfo redirectInfo = new SslRedirectInfo();
                 urlConnection = null;

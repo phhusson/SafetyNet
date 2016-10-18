@@ -27,6 +27,7 @@ class ApplicationInfoUtils {
     static class AppInfo {
         public String apkSha256;
         public byte[] apkSha256Bytes;
+        public int apkVersionCode;
         public String packageName;
         public List<String> signatureSha256;
         public byte[][] signatureSha256Bytes;
@@ -75,6 +76,7 @@ class ApplicationInfoUtils {
                     info.signatureSha256.add(signatureSha256);
                 }
             }
+            info.apkVersionCode = packageInfo.versionCode;
             return info;
         } catch (NameNotFoundException e) {
             return null;

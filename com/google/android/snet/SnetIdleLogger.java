@@ -47,6 +47,7 @@ class SnetIdleLogger {
     static final String DROPBOX_IDLE_MODE_SNET_TAG = "snet_idle";
     private static final String SNET_SUBDIR = "/snet";
     private static final String TAG = SnetIdleLogger.class.getCanonicalName();
+    private static final boolean WRITE_TO_DROPBOX = false;
     private final Context mContext;
     private DropBoxManager mDropBoxManager;
     private List<String> mExceptionsList;
@@ -308,9 +309,6 @@ class SnetIdleLogger {
             clearcutLogger.newEvent(MessageNano.toByteArray(this.mSnetLog)).logAsync(googleApiClient);
             clearcutLogger.disconnectAsync(googleApiClient);
         }
-        if (this.mGBundle.getDropboxIdleLoggingEnabled()) {
-            this.mDropBoxManager.addData(DROPBOX_IDLE_MODE_SNET_TAG, MessageNano.toByteArray(this.mSnetLog), 0);
-        }
         this.mSnetLog = new SnetIdleLog();
     }
 
@@ -417,16 +415,16 @@ class SnetIdleLogger {
         if (appInfo.packageName != null) {
             appInfoProto.packageName = appInfo.packageName;
         }
-        if (appInfo.signatureSha256Bytes == null || appInfo.signatureSha256Bytes.length == 0) {
-            return appInfoProto;
-        }
-        int numSignatures = appInfo.signatureSha256Bytes.length;
-        appInfoProto.signatureSha256Bytes = new byte[numSignatures][];
-        for (int i = 0; i < numSignatures; i++) {
-            if (appInfo.signatureSha256Bytes[i] != null) {
-                appInfoProto.signatureSha256Bytes[i] = appInfo.signatureSha256Bytes[i];
+        if (!(appInfo.signatureSha256Bytes == null || appInfo.signatureSha256Bytes.length == 0)) {
+            int numSignatures = appInfo.signatureSha256Bytes.length;
+            appInfoProto.signatureSha256Bytes = new byte[numSignatures][];
+            for (int i = 0; i < numSignatures; i++) {
+                if (appInfo.signatureSha256Bytes[i] != null) {
+                    appInfoProto.signatureSha256Bytes[i] = appInfo.signatureSha256Bytes[i];
+                }
             }
         }
+        appInfoProto.apkVersionCode = appInfo.apkVersionCode;
         return appInfoProto;
     }
 
@@ -485,6 +483,12 @@ class SnetIdleLogger {
                 }
                 this.mSnetLog.deviceState.dmVerityCorrection = (IdleLogs.DMVerityCorrection[]) correctionList.toArray(new IdleLogs.DMVerityCorrection[0]);
             }
+        }
+    }
+
+    void setGmsCoreInfo(AppInfo appInfo) {
+        if (appInfo != null && appInfo.packageName != null) {
+            this.mSnetLog.gmsCoreInfo = convertAppInfo(appInfo, true);
         }
     }
 }

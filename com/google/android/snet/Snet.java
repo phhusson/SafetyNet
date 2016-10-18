@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Snet {
-    private static final String DEFAULT_IDLE_WHITELIST_TAGS = "system_partition_files,system_ca_cert_store,setuid_files,dalvik_cache_monitor,device_state,locale,selinux_status,logcat,event_log";
+    private static final String DEFAULT_IDLE_WHITELIST_TAGS = "gmscore,system_partition_files,system_ca_cert_store,setuid_files,dalvik_cache_monitor,device_state,locale,selinux_status,logcat,event_log";
     private static final String DEFAULT_WHITELIST_TAGS = "default_packages,su_files,settings,locale,ssl_redirect,ssl_handshake,proxy,selinux_status,sd_card_test,google_page_info,captive_portal_test,attest,gmscore,device_state,carrier_info,logcat,event_log";
     static final String DONE_TAG = "done";
     private static final String GOOGLE_ACCOUNT_SUFFIX = "@google.com";
@@ -151,7 +151,7 @@ public class Snet {
     public static void enterSnetIdle(Context ctx, Bundle bundle) {
         if (bundle == null) {
             Log.e(TAG, "Missing bundle.");
-        } else {
+        } else if (timeToRunIdleMode(ctx, bundle)) {
             new Snet(ctx, bundle).logAllInfoIdleMode();
         }
     }
@@ -222,7 +222,7 @@ public class Snet {
                         } else if (LOG_CAPTIVE_PORTAL_TEST_TAG.equals(signalTag)) {
                             logCaptivePortalTest();
                         } else if (LOG_GMSCORE_INFO_TAG.equals(signalTag)) {
-                            logGmsCoreInfo();
+                            logGmsCoreInfoNormal();
                         } else if (LOG_ATTESTATION_TAG.equals(signalTag)) {
                             logAttestationResult();
                         } else if (LOG_EVENT_LOG_TAG.equals(signalTag)) {
@@ -297,6 +297,8 @@ public class Snet {
                             logLocaleIdleMode();
                         } else if (LOG_SELINUX_TAG.equals(signalTag2)) {
                             logSeLinuxInfoIdleMode();
+                        } else if (LOG_GMSCORE_INFO_TAG.equals(signalTag2)) {
+                            logGmsCoreInfo();
                         } else {
                             Log.e(TAG, String.format("Unknown tag: %s", new Object[]{signalTag2}));
                         }
@@ -334,6 +336,14 @@ public class Snet {
             this.mSnetIdleLogger.saveProto(getVersion(), startTimeMs);
         }
         preferences.saveLastIdleModeTag(lastSignalTag);
+    }
+
+    static boolean timeToRunIdleMode(Context context, Bundle bundle) {
+        long lastIdleModeRunTimeMs = new SnetSharedPreferences(context).lastIdleModeRunTimestampMs();
+        if (lastIdleModeRunTimeMs != -1 && lastIdleModeRunTimeMs + bundle.getLong("snet_idle_mode_wake_interval_ms") >= System.currentTimeMillis()) {
+            return false;
+        }
+        return true;
     }
 
     private String idleWhitelistTags() {
@@ -471,8 +481,12 @@ public class Snet {
         }
     }
 
-    private void logGmsCoreInfo() {
+    private void logGmsCoreInfoNormal() {
         this.mSnetLogger.setGmsCoreInfo(new ApplicationInfoUtils(this.mCtx, this.mGBundle).appInfo("com.google.android.gms"));
+    }
+
+    private void logGmsCoreInfo() {
+        this.mSnetIdleLogger.setGmsCoreInfo(new ApplicationInfoUtils(this.mCtx, this.mGBundle).appInfo("com.google.android.gms"));
     }
 
     private void logDeactivateDeviceAdmins() {

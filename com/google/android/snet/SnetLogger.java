@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.DropBoxManager;
+import android.support.v4.view.PointerIconCompat;
 import android.text.TextUtils;
 import com.google.android.gms.clearcut.ClearcutLogger;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -56,6 +57,7 @@ class SnetLogger {
     private static final String DROPBOX_SNET_TAG = "snet";
     private static final int FULL_LOGGING = 2;
     private static final String TAG = SnetLogger.class.getCanonicalName();
+    private static final boolean WRITE_TO_DROPBOX = false;
     private final Context mContext;
     private DropBoxManager mDropBoxManager;
     private List<String> mExceptionsList;
@@ -159,6 +161,7 @@ class SnetLogger {
         this.mSnetLog.settings.smartLockStatusObtained = deviceSettings.smartLockStatusObtained;
         this.mSnetLog.settings.smartLockEnabled = deviceSettings.smartLockEnabled;
         this.mSnetLog.settings.storageEncryptionStatus = deviceSettings.storageEncryptionStatus;
+        this.mSnetLog.settings.fingerprintStatus = deviceSettings.fingerprintStatus;
     }
 
     void setLocale(String locale) {
@@ -480,7 +483,7 @@ class SnetLogger {
             charCount += packageName.length();
             if (charCount > 1024) {
                 if (packageName.length() > 1024) {
-                    includedPackageNames.add(String.valueOf(packageName.substring(1021)).concat("..."));
+                    includedPackageNames.add(String.valueOf(packageName.substring(PointerIconCompat.TYPE_GRABBING)).concat("..."));
                 } else {
                     includedPackageNames.add(packageName);
                 }
@@ -549,9 +552,6 @@ class SnetLogger {
             ClearcutLogger clearcutLogger = ClearcutLogger.anonymousLogger(this.mContext, CLEARCUT_ANDROID_SNET_JAR_LOG_SOURCE);
             clearcutLogger.newEvent(MessageNano.toByteArray(this.mSnetLog)).logAsync(googleApiClient);
             clearcutLogger.disconnectAsync(googleApiClient);
-        }
-        if (this.mGBundle.getDropboxJarLoggingEnabled()) {
-            this.mDropBoxManager.addData(DROPBOX_SNET_TAG, MessageNano.toByteArray(this.mSnetLog), 0);
         }
         this.mSnetLog = new SnetLog();
     }

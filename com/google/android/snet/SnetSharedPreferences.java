@@ -3,7 +3,6 @@ package com.google.android.snet;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
 
 class SnetSharedPreferences {
     static final String DEFAULT_STRING = "";
@@ -14,11 +13,12 @@ class SnetSharedPreferences {
     private static final String KEY_LAST_SUCCESSFUL_IDLE_MODE_TAG = "snet_last_successful_idle_mode_tag";
     private static final String LAST_IDLE_MODE_RUN_TIMESTAMP_MS = "snet_last_idle_run_timestamp";
     private static final String LAST_NORMAL_MODE_RUN_TIMESTAMP_MS = "snet_last_run_timestamp";
+    private static final String SHARED_PREFERENCES_NAME = "com.google.android.gms.snet";
     private static final String SNET_EVENT_LOG_LAST_TIMESTAMP_MS = "snet_event_log_last_timestamp";
     private SharedPreferences mPreferences;
 
     SnetSharedPreferences(Context context) {
-        this.mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        this.mPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0);
     }
 
     long lastEventLogTimestampMs() {

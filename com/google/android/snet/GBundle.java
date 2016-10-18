@@ -183,14 +183,6 @@ class GBundle {
         return this.mBundle.getBoolean("snet_clearcut_jar_logging_enabled");
     }
 
-    boolean getDropboxIdleLoggingEnabled() {
-        return this.mBundle.getBoolean("snet_dropbox_idle_logging_enabled");
-    }
-
-    boolean getDropboxJarLoggingEnabled() {
-        return this.mBundle.getBoolean("snet_dropbox_jar_logging_enabled");
-    }
-
     String getRequestedCertsBySha256() {
         return this.mBundle.getString("snet_requested_ca_certs");
     }

@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -36,7 +38,12 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -59,11 +66,100 @@ class SslHandshakeAnalyzer {
     private final SnetLogger mSnetLogger;
     private List<SslInfo> mSslInfo = new ArrayList();
 
+    class C05971 implements HandshakeCompletedListener {
+        final /* synthetic */ SslInfo val$sslInfo;
+
+        C05971(SslInfo sslInfo) {
+            this.val$sslInfo = sslInfo;
+        }
+
+        public void handshakeCompleted(HandshakeCompletedEvent handshakeCompletedEvent) {
+            SSLSession session = handshakeCompletedEvent.getSession();
+            this.val$sslInfo.protocol = session.getProtocol();
+            this.val$sslInfo.cipherSuite = session.getCipherSuite();
+        }
+    }
+
     public static class CertPinInfo {
         public boolean chainIsTrusted;
         public boolean inCaStore;
         public boolean pinTestError;
         public boolean userAdded;
+    }
+
+    private static class MySSLSocketFactory extends SSLSocketFactory {
+        private final SSLSocketFactory delegate;
+        private HandshakeCompletedListener handshakeListener;
+
+        public MySSLSocketFactory(SSLSocketFactory delegate, HandshakeCompletedListener handshakeListener) {
+            this.delegate = delegate;
+            this.handshakeListener = handshakeListener;
+        }
+
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+            if (this.delegate == null) {
+                return null;
+            }
+            SSLSocket socket = (SSLSocket) this.delegate.createSocket(s, host, port, autoClose);
+            addHandshakeCompletedListener(socket);
+            return socket;
+        }
+
+        public Socket createSocket(String s, int i) throws IOException {
+            if (this.delegate == null) {
+                return null;
+            }
+            SSLSocket socket = (SSLSocket) this.delegate.createSocket(s, i);
+            addHandshakeCompletedListener(socket);
+            return socket;
+        }
+
+        public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException {
+            if (this.delegate == null) {
+                return null;
+            }
+            SSLSocket socket = (SSLSocket) this.delegate.createSocket(s, i);
+            addHandshakeCompletedListener(socket);
+            return socket;
+        }
+
+        public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
+            if (this.delegate == null) {
+                return null;
+            }
+            SSLSocket socket = (SSLSocket) this.delegate.createSocket(inetAddress, i);
+            addHandshakeCompletedListener(socket);
+            return socket;
+        }
+
+        public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
+            if (this.delegate == null) {
+                return null;
+            }
+            SSLSocket socket = (SSLSocket) this.delegate.createSocket(inetAddress, i, inetAddress1, i1);
+            addHandshakeCompletedListener(socket);
+            return socket;
+        }
+
+        public String[] getDefaultCipherSuites() {
+            if (this.delegate == null) {
+                return null;
+            }
+            return this.delegate.getDefaultCipherSuites();
+        }
+
+        public String[] getSupportedCipherSuites() {
+            if (this.delegate == null) {
+                return null;
+            }
+            return this.delegate.getSupportedCipherSuites();
+        }
+
+        private void addHandshakeCompletedListener(SSLSocket socket) {
+            if (this.handshakeListener != null && socket != null) {
+                socket.addHandshakeCompletedListener(this.handshakeListener);
+            }
+        }
     }
 
     public static class SslInfo {
@@ -102,6 +198,385 @@ class SslHandshakeAnalyzer {
         }
     }
 
+    private void httpsConnectionHandshake(java.lang.String r24) {
+        /* JADX: method processing error */
+/*
+Error: java.util.NoSuchElementException
+	at java.util.HashMap$HashIterator.nextNode(HashMap.java:1439)
+	at java.util.HashMap$KeyIterator.next(HashMap.java:1461)
+	at jadx.core.dex.visitors.blocksmaker.BlockFinallyExtract.applyRemove(BlockFinallyExtract.java:535)
+	at jadx.core.dex.visitors.blocksmaker.BlockFinallyExtract.extractFinally(BlockFinallyExtract.java:175)
+	at jadx.core.dex.visitors.blocksmaker.BlockFinallyExtract.processExceptionHandler(BlockFinallyExtract.java:80)
+	at jadx.core.dex.visitors.blocksmaker.BlockFinallyExtract.visit(BlockFinallyExtract.java:51)
+	at jadx.core.dex.visitors.DepthTraversal.visit(DepthTraversal.java:31)
+	at jadx.core.dex.visitors.DepthTraversal.visit(DepthTraversal.java:17)
+	at jadx.core.ProcessClass.process(ProcessClass.java:37)
+	at jadx.core.ProcessClass.processDependencies(ProcessClass.java:59)
+	at jadx.core.ProcessClass.process(ProcessClass.java:42)
+	at jadx.api.JadxDecompiler.processClass(JadxDecompiler.java:306)
+	at jadx.api.JavaClass.decompile(JavaClass.java:62)
+*/
+        /*
+        r23 = this;
+        r9 = 0;
+        r15 = new com.google.android.snet.SslHandshakeAnalyzer$SslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.<init>();	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r24;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.host = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 2;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslConnectionMethod = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = "TLS";	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r14 = javax.net.ssl.SSLContext.getInstance(r20);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r16 = new com.google.android.snet.SslHandshakeAnalyzer$TrustAllX509TrustManager;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r16;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.<init>();	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 1;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = new javax.net.ssl.TrustManager[r0];	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r17 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r17[r20] = r16;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = (javax.net.ssl.KeyManager[]) r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r21 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r21 = (java.security.SecureRandom) r21;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r17;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r2 = r21;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r14.init(r0, r1, r2);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r18 = new java.net.URL;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = "https";	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r21 = "";	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r18;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r2 = r24;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r3 = r21;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.<init>(r1, r2, r3);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r18.openConnection();	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = (javax.net.ssl.HttpsURLConnection) r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r9 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 != 0) goto L_0x0071;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x005a:
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslConnectionSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.add(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x006d:
+        r9.disconnect();
+    L_0x0070:
+        return;
+    L_0x0071:
+        r20 = 1;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslConnectionSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = new com.google.android.snet.SslHandshakeAnalyzer$MySSLSocketFactory;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r21 = r14.getSocketFactory();	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r22 = new com.google.android.snet.SslHandshakeAnalyzer$1;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r22;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.<init>(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20.<init>(r21, r22);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r9.setSSLSocketFactory(r0);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r9.connect();	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 1;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslSocketCreated = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 1;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslSessionValid = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r13 = 0;
+        r13 = r9.getServerCertificates();	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        if (r13 == 0) goto L_0x00de;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+    L_0x00a4:
+        r0 = r13.length;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r20 = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        if (r20 == 0) goto L_0x00de;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+    L_0x00a9:
+        r20 = 1;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r0 = r20;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r15.sslPeerCertificatesRetrieved = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r19 = 0;
+        r19 = findX509TrustManager();	 Catch:{ KeyStoreException -> 0x0111, NoSuchAlgorithmException -> 0x0131, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270 }
+    L_0x00b5:
+        if (r19 == 0) goto L_0x0152;
+    L_0x00b7:
+        r20 = 1;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.x509TrustManagerExists = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r8 = 0;
+        r0 = r13.length;	 Catch:{ CertificateException -> 0x023c }
+        r20 = r0;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r7 = new java.security.cert.X509Certificate[r0];	 Catch:{ CertificateException -> 0x023c }
+        r11 = 0;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r13.length;	 Catch:{ CertificateException -> 0x023c }
+        r21 = r0;	 Catch:{ CertificateException -> 0x023c }
+        r20 = 0;	 Catch:{ CertificateException -> 0x023c }
+        r12 = r11;	 Catch:{ CertificateException -> 0x023c }
+    L_0x00cc:
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r1 = r21;	 Catch:{ CertificateException -> 0x023c }
+        if (r0 >= r1) goto L_0x017e;	 Catch:{ CertificateException -> 0x023c }
+    L_0x00d2:
+        r5 = r13[r20];	 Catch:{ CertificateException -> 0x023c }
+        r11 = r12 + 1;	 Catch:{ CertificateException -> 0x023c }
+        r5 = (java.security.cert.X509Certificate) r5;	 Catch:{ CertificateException -> 0x023c }
+        r7[r12] = r5;	 Catch:{ CertificateException -> 0x023c }
+        r20 = r20 + 1;
+        r12 = r11;
+        goto L_0x00cc;
+    L_0x00de:
+        r20 = 0;
+        r0 = r20;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r15.sslPeerCertificatesRetrieved = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r0 = r23;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r0 = r0.mSslInfo;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r20 = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r0 = r20;	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        r0.add(r15);	 Catch:{ SSLPeerUnverifiedException -> 0x00f6, IllegalStateException -> 0x028a, NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d }
+        if (r9 == 0) goto L_0x0070;
+    L_0x00f1:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x00f6:
+        r20 = move-exception;
+        r10 = r20;
+    L_0x00f9:
+        r20 = 0;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.sslPeerCertificatesRetrieved = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.add(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x010c:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0111:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        goto L_0x00b5;
+    L_0x011e:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x012c:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0131:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        goto L_0x00b5;
+    L_0x013f:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x014d:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0152:
+        r20 = 0;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.x509TrustManagerExists = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.add(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = new java.lang.IllegalStateException;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r21 = "No X509TrustManager found";	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20.<init>(r21);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        throw r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x016b:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x0179:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x017e:
+        r20 = android.os.Build.VERSION.SDK_INT;	 Catch:{ CertificateException -> 0x023c }
+        r21 = 21;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r1 = r21;	 Catch:{ CertificateException -> 0x023c }
+        if (r0 < r1) goto L_0x0220;	 Catch:{ CertificateException -> 0x023c }
+    L_0x0188:
+        r20 = "RSA";	 Catch:{ CertificateException -> 0x023c }
+        r0 = r19;	 Catch:{ CertificateException -> 0x023c }
+        r1 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r2 = r24;	 Catch:{ CertificateException -> 0x023c }
+        r8 = checkServerTrustedPostL(r0, r7, r1, r2);	 Catch:{ CertificateException -> 0x023c }
+    L_0x0194:
+        r20 = 1;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r15.chainIsValid = r0;	 Catch:{ CertificateException -> 0x023c }
+        r20 = 1;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r15.x509TrustManagerAcceptedConnection = r0;	 Catch:{ CertificateException -> 0x023c }
+        r20 = 1;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.hostnameVerificationSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = new java.security.cert.Certificate[r0];	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r8.toArray(r0);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = (java.security.cert.Certificate[]) r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r6 = r0.certPinInfo(r1);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r6.chainIsTrusted;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.chainIsTrusted = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r6.pinTestError;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.pinTestError = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r6.userAdded;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.certUserAdded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r6.inCaStore;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.certInCaStore = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = new java.security.cert.Certificate[r0];	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r8.toArray(r0);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = (java.security.cert.Certificate[]) r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r1 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0.ekuContainsAcceptedOid(r1);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.extendedKeyUsageVerified = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r15.chainIsValid;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r20 == 0) goto L_0x020c;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x0200:
+        r0 = r15.chainIsTrusted;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r20 == 0) goto L_0x020c;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x0206:
+        r0 = r15.extendedKeyUsageVerified;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r20 != 0) goto L_0x020e;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x020c:
+        r15.peerCertificates = r13;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+    L_0x020e:
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.add(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x021b:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0220:
+        r20 = "RSA";	 Catch:{ CertificateException -> 0x023c }
+        r0 = r19;	 Catch:{ CertificateException -> 0x023c }
+        r1 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r0.checkServerTrusted(r7, r1);	 Catch:{ CertificateException -> 0x023c }
+        r4 = new com.google.android.snet.PreLCertificateChainBuilder;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r23;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r0.mContext;	 Catch:{ CertificateException -> 0x023c }
+        r20 = r0;	 Catch:{ CertificateException -> 0x023c }
+        r0 = r20;	 Catch:{ CertificateException -> 0x023c }
+        r4.<init>(r0);	 Catch:{ CertificateException -> 0x023c }
+        r8 = r4.buildCertChain(r7);	 Catch:{ CertificateException -> 0x023c }
+        goto L_0x0194;
+    L_0x023c:
+        r10 = move-exception;
+        r20 = 0;
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.chainIsValid = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = 0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.x509TrustManagerAcceptedConnection = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r15.peerCertificates = r13;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.add(r15);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x0258:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x025d:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x026b:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0270:
+        r10 = move-exception;
+        r0 = r23;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r20 = r0;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0 = r20;	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x011e, KeyManagementException -> 0x013f, MalformedURLException -> 0x016b, IOException -> 0x025d, IllegalStateException -> 0x0270, all -> 0x0283 }
+        if (r9 == 0) goto L_0x0070;
+    L_0x027e:
+        r9.disconnect();
+        goto L_0x0070;
+    L_0x0283:
+        r20 = move-exception;
+        if (r9 == 0) goto L_0x0289;
+    L_0x0286:
+        r9.disconnect();
+    L_0x0289:
+        throw r20;
+    L_0x028a:
+        r20 = move-exception;
+        r10 = r20;
+        goto L_0x00f9;
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.google.android.snet.SslHandshakeAnalyzer.httpsConnectionHandshake(java.lang.String):void");
+    }
+
     List<SslInfo> sslInfoList() {
         return this.mSslInfo;
     }
@@ -123,488 +598,6 @@ class SslHandshakeAnalyzer {
                 }
             }
         }
-    }
-
-    /* JADX WARNING: inconsistent code. */
-    /* Code decompiled incorrectly, please refer to instructions dump. */
-    private void httpsConnectionHandshake(java.lang.String r24) {
-        /*
-        r23 = this;
-        r9 = 0;
-        r13 = 0;
-        r16 = new com.google.android.snet.SslHandshakeAnalyzer$SslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r16.<init>();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r24;
-        r1 = r16;
-        r1.host = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 2;
-        r0 = r21;
-        r1 = r16;
-        r1.sslConnectionMethod = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = "TLS";
-        r15 = javax.net.ssl.SSLContext.getInstance(r21);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r17 = new com.google.android.snet.SslHandshakeAnalyzer$TrustAllX509TrustManager;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 0;
-        r0 = r17;
-        r1 = r21;
-        r0.<init>();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 1;
-        r0 = r21;
-        r0 = new javax.net.ssl.TrustManager[r0];	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r18 = r0;
-        r21 = 0;
-        r18[r21] = r17;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 0;
-        r21 = (javax.net.ssl.KeyManager[]) r21;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r22 = 0;
-        r22 = (java.security.SecureRandom) r22;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r21;
-        r1 = r18;
-        r2 = r22;
-        r15.init(r0, r1, r2);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r19 = new java.net.URL;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = "https";
-        r22 = "";
-        r0 = r19;
-        r1 = r21;
-        r2 = r24;
-        r3 = r22;
-        r0.<init>(r1, r2, r3);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r19.openConnection();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r21;
-        r0 = (javax.net.ssl.HttpsURLConnection) r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r9 = r0;
-        if (r9 != 0) goto L_0x007f;
-    L_0x005f:
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.sslConnectionSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        if (r13 == 0) goto L_0x0079;
-    L_0x0076:
-        r13.close();	 Catch:{ IOException -> 0x030f }
-    L_0x0079:
-        if (r9 == 0) goto L_0x007e;
-    L_0x007b:
-        r9.disconnect();
-    L_0x007e:
-        return;
-    L_0x007f:
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.sslConnectionSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r15.getSocketFactory();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r21;
-        r9.setSSLSocketFactory(r0);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r9.connect();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.sslSocketCreated = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.sslSessionValid = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r13 = r9.getInputStream();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r9.getResponseCode();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r15.getProtocol();	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r21;
-        r1 = r16;
-        r1.protocol = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r9.getCipherSuite();	 Catch:{ IllegalStateException -> 0x0331, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        r0 = r21;
-        r1 = r16;
-        r1.cipherSuite = r0;	 Catch:{ IllegalStateException -> 0x0331, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-    L_0x00be:
-        r14 = 0;
-        r14 = r9.getServerCertificates();	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        if (r14 == 0) goto L_0x0103;
-    L_0x00c5:
-        r0 = r14.length;	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        r21 = r0;
-        if (r21 == 0) goto L_0x0103;
-    L_0x00ca:
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.sslPeerCertificatesRetrieved = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        r20 = 0;
-        r20 = findX509TrustManager();	 Catch:{ KeyStoreException -> 0x0148, NoSuchAlgorithmException -> 0x016d, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-    L_0x00d8:
-        if (r20 == 0) goto L_0x0193;
-    L_0x00da:
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.x509TrustManagerExists = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r8 = 0;
-        r0 = r14.length;	 Catch:{ CertificateException -> 0x02a5 }
-        r21 = r0;
-        r0 = r21;
-        r7 = new java.security.cert.X509Certificate[r0];	 Catch:{ CertificateException -> 0x02a5 }
-        r11 = 0;
-        r0 = r14.length;	 Catch:{ CertificateException -> 0x02a5 }
-        r22 = r0;
-        r21 = 0;
-        r12 = r11;
-    L_0x00f1:
-        r0 = r21;
-        r1 = r22;
-        if (r0 >= r1) goto L_0x01c8;
-    L_0x00f7:
-        r5 = r14[r21];	 Catch:{ CertificateException -> 0x02a5 }
-        r11 = r12 + 1;
-        r5 = (java.security.cert.X509Certificate) r5;	 Catch:{ CertificateException -> 0x02a5 }
-        r7[r12] = r5;	 Catch:{ CertificateException -> 0x02a5 }
-        r21 = r21 + 1;
-        r12 = r11;
-        goto L_0x00f1;
-    L_0x0103:
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.sslPeerCertificatesRetrieved = r0;	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ SSLPeerUnverifiedException -> 0x0124, IllegalStateException -> 0x0312, NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3 }
-        if (r13 == 0) goto L_0x011d;
-    L_0x011a:
-        r13.close();	 Catch:{ IOException -> 0x0317 }
-    L_0x011d:
-        if (r9 == 0) goto L_0x007e;
-    L_0x011f:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x0124:
-        r21 = move-exception;
-        r10 = r21;
-    L_0x0127:
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.sslPeerCertificatesRetrieved = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        if (r13 == 0) goto L_0x0141;
-    L_0x013e:
-        r13.close();	 Catch:{ IOException -> 0x031a }
-    L_0x0141:
-        if (r9 == 0) goto L_0x007e;
-    L_0x0143:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x0148:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        goto L_0x00d8;
-    L_0x0155:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ all -> 0x0303 }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ all -> 0x0303 }
-        if (r13 == 0) goto L_0x0166;
-    L_0x0163:
-        r13.close();	 Catch:{ IOException -> 0x0322 }
-    L_0x0166:
-        if (r9 == 0) goto L_0x007e;
-    L_0x0168:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x016d:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        goto L_0x00d8;
-    L_0x017b:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ all -> 0x0303 }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ all -> 0x0303 }
-        if (r13 == 0) goto L_0x018c;
-    L_0x0189:
-        r13.close();	 Catch:{ IOException -> 0x0325 }
-    L_0x018c:
-        if (r9 == 0) goto L_0x007e;
-    L_0x018e:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x0193:
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.x509TrustManagerExists = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = new java.lang.IllegalStateException;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r22 = "No X509TrustManager found";
-        r21.<init>(r22);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        throw r21;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-    L_0x01b0:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ all -> 0x0303 }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ all -> 0x0303 }
-        if (r13 == 0) goto L_0x01c1;
-    L_0x01be:
-        r13.close();	 Catch:{ IOException -> 0x0328 }
-    L_0x01c1:
-        if (r9 == 0) goto L_0x007e;
-    L_0x01c3:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x01c8:
-        r21 = android.os.Build.VERSION.SDK_INT;	 Catch:{ CertificateException -> 0x02a5 }
-        r22 = 21;
-        r0 = r21;
-        r1 = r22;
-        if (r0 < r1) goto L_0x0289;
-    L_0x01d2:
-        r21 = "RSA";
-        r0 = r20;
-        r1 = r21;
-        r2 = r24;
-        r8 = checkServerTrustedPostL(r0, r7, r1, r2);	 Catch:{ CertificateException -> 0x02a5 }
-    L_0x01de:
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.chainIsValid = r0;	 Catch:{ CertificateException -> 0x02a5 }
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.x509TrustManagerAcceptedConnection = r0;	 Catch:{ CertificateException -> 0x02a5 }
-        r21 = 1;
-        r0 = r21;
-        r1 = r16;
-        r1.hostnameVerificationSucceeded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 0;
-        r0 = r21;
-        r0 = new java.security.cert.Certificate[r0];	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r21 = r8.toArray(r0);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = (java.security.cert.Certificate[]) r21;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r1 = r21;
-        r6 = r0.certPinInfo(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r6.chainIsTrusted;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r1.chainIsTrusted = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r6.pinTestError;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r1.pinTestError = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r6.userAdded;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r1.certUserAdded = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r6.inCaStore;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r1.certInCaStore = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 0;
-        r0 = r21;
-        r0 = new java.security.cert.Certificate[r0];	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r21 = r8.toArray(r0);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = (java.security.cert.Certificate[]) r21;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r1 = r21;
-        r21 = r0.ekuContainsAcceptedOid(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r21;
-        r1 = r16;
-        r1.extendedKeyUsageVerified = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r16;
-        r0 = r0.chainIsValid;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        if (r21 == 0) goto L_0x026c;
-    L_0x025c:
-        r0 = r16;
-        r0 = r0.chainIsTrusted;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        if (r21 == 0) goto L_0x026c;
-    L_0x0264:
-        r0 = r16;
-        r0 = r0.extendedKeyUsageVerified;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        if (r21 != 0) goto L_0x0270;
-    L_0x026c:
-        r0 = r16;
-        r0.peerCertificates = r14;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-    L_0x0270:
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        if (r13 == 0) goto L_0x0282;
-    L_0x027f:
-        r13.close();	 Catch:{ IOException -> 0x031f }
-    L_0x0282:
-        if (r9 == 0) goto L_0x007e;
-    L_0x0284:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x0289:
-        r21 = "RSA";
-        r0 = r20;
-        r1 = r21;
-        r0.checkServerTrusted(r7, r1);	 Catch:{ CertificateException -> 0x02a5 }
-        r4 = new com.google.android.snet.PreLCertificateChainBuilder;	 Catch:{ CertificateException -> 0x02a5 }
-        r0 = r23;
-        r0 = r0.mContext;	 Catch:{ CertificateException -> 0x02a5 }
-        r21 = r0;
-        r0 = r21;
-        r4.<init>(r0);	 Catch:{ CertificateException -> 0x02a5 }
-        r8 = r4.buildCertChain(r7);	 Catch:{ CertificateException -> 0x02a5 }
-        goto L_0x01de;
-    L_0x02a5:
-        r10 = move-exception;
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.chainIsValid = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = 0;
-        r0 = r21;
-        r1 = r16;
-        r1.x509TrustManagerAcceptedConnection = r0;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r16;
-        r0.peerCertificates = r14;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r0 = r23;
-        r0 = r0.mSslInfo;	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        r21 = r0;
-        r0 = r21;
-        r1 = r16;
-        r0.add(r1);	 Catch:{ NoSuchAlgorithmException -> 0x0155, KeyManagementException -> 0x017b, MalformedURLException -> 0x01b0, IOException -> 0x02d3, IllegalStateException -> 0x02eb }
-        if (r13 == 0) goto L_0x02cc;
-    L_0x02c9:
-        r13.close();	 Catch:{ IOException -> 0x031d }
-    L_0x02cc:
-        if (r9 == 0) goto L_0x007e;
-    L_0x02ce:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x02d3:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ all -> 0x0303 }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ all -> 0x0303 }
-        if (r13 == 0) goto L_0x02e4;
-    L_0x02e1:
-        r13.close();	 Catch:{ IOException -> 0x032b }
-    L_0x02e4:
-        if (r9 == 0) goto L_0x007e;
-    L_0x02e6:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x02eb:
-        r10 = move-exception;
-        r0 = r23;
-        r0 = r0.mSnetLogger;	 Catch:{ all -> 0x0303 }
-        r21 = r0;
-        r0 = r21;
-        r0.writeException(r10);	 Catch:{ all -> 0x0303 }
-        if (r13 == 0) goto L_0x02fc;
-    L_0x02f9:
-        r13.close();	 Catch:{ IOException -> 0x032d }
-    L_0x02fc:
-        if (r9 == 0) goto L_0x007e;
-    L_0x02fe:
-        r9.disconnect();
-        goto L_0x007e;
-    L_0x0303:
-        r21 = move-exception;
-        if (r13 == 0) goto L_0x0309;
-    L_0x0306:
-        r13.close();	 Catch:{ IOException -> 0x032f }
-    L_0x0309:
-        if (r9 == 0) goto L_0x030e;
-    L_0x030b:
-        r9.disconnect();
-    L_0x030e:
-        throw r21;
-    L_0x030f:
-        r21 = move-exception;
-        goto L_0x0079;
-    L_0x0312:
-        r21 = move-exception;
-        r10 = r21;
-        goto L_0x0127;
-    L_0x0317:
-        r21 = move-exception;
-        goto L_0x011d;
-    L_0x031a:
-        r21 = move-exception;
-        goto L_0x0141;
-    L_0x031d:
-        r21 = move-exception;
-        goto L_0x02cc;
-    L_0x031f:
-        r21 = move-exception;
-        goto L_0x0282;
-    L_0x0322:
-        r21 = move-exception;
-        goto L_0x0166;
-    L_0x0325:
-        r21 = move-exception;
-        goto L_0x018c;
-    L_0x0328:
-        r21 = move-exception;
-        goto L_0x01c1;
-    L_0x032b:
-        r21 = move-exception;
-        goto L_0x02e4;
-    L_0x032d:
-        r21 = move-exception;
-        goto L_0x02fc;
-    L_0x032f:
-        r22 = move-exception;
-        goto L_0x0309;
-    L_0x0331:
-        r21 = move-exception;
-        goto L_0x00be;
-        */
-        throw new UnsupportedOperationException("Method not decompiled: com.google.android.snet.SslHandshakeAnalyzer.httpsConnectionHandshake(java.lang.String):void");
     }
 
     /* JADX WARNING: inconsistent code. */
